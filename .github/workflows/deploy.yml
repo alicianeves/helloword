@@ -33,13 +33,13 @@ jobs:
       - name: Notificação sucesso
         if: success()
         run: |
-          curl -H "Content-Type: application/json" ^
-          -d "{\"content\":\"✅ Deploy realizado com sucesso\"}" ^
+          curl -H "Content-Type: application/json" \
+          -d '{"content":"✅ Deploy realizado com sucesso"}' \
           ${{ secrets.DISCORD_WEBHOOK }}
-
+      
       - name: Notificação erro
         if: failure()
         run: |
-          curl -H "Content-Type: application/json" ^
-          -d "{\"content\":\"❌ Deploy falhou\"}" ^
+          curl -H "Content-Type: application/json" \
+          -d '{"content":"❌ Deploy falhou"}' \
           ${{ secrets.DISCORD_WEBHOOK }}
