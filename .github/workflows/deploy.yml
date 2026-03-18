@@ -1,0 +1,45 @@
+name: Deploy Python App
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Enviar arquivos para servidor
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          source: "."
+          target: "~/temp_app"
+
+      - name: Executar deploy no servidor
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            bash ~/deploy.sh
+
+      - name: Notificação sucesso
+        if: success()
+        run: |
+          curl -H "Content-Type: application/json" ^
+          -d "{\"content\":\"✅ Deploy realizado com sucesso\"}" ^
+          ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: Notificação erro
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" ^
+          -d "{\"content\":\"❌ Deploy falhou\"}" ^
+          ${{ secrets.DISCORD_WEBHOOK }}
